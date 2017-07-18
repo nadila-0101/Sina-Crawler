@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import requests
 import shutil
 import time
+import json
 from lxml import etree
 
 reload(sys)
@@ -27,18 +28,29 @@ print u'user_id和cookie读入成功'
 
 soup = BeautifulSoup(content, 'lxml')
 info_soup = BeautifulSoup(info_content, 'lxml')
-weibo_content = soup.find_all('div', class_="c")
+weibo_list = soup.find_all('div', class_="c")
 
-for weibo in weibo_content:
+expression_list = []
+topic_list = []
+
+for weibo in weibo_list:
     try:
         weibo_text = weibo.find("span", class_="ctt").get_text()
         print weibo_text
+
+        topic = re.findall("#.*?#", weibo_text)
+        for topic_text in topic:
+            topic_list.append(topic_text)
+
+        expression = re.findall("\[.*?]", weibo_text)
+        for expression_text in expression:
+            expression_list.append(expression_text)
+
     except AttributeError:
         print 'weibo is empty'
 
-expression = re.findall("\[.+\]", weibo_text)
-for expression_text in expression:
-    print "expression:", expression.text
+print '话题个数', len(topic_list)
+print '表情个数', len(expression_list)
 
 
 # 保留数字
